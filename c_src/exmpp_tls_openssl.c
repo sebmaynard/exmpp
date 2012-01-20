@@ -21,6 +21,10 @@
 
 #include "exmpp_tls.h"
 
+#if (defined(__MACH__) && defined(__APPLE__))
+#  pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
 #define	DRIVER_NAME	exmpp_tls_openssl
 #define CIPHERS         "DEFAULT:!EXPORT:!LOW:!SSLv2"
 
@@ -162,9 +166,9 @@ exmpp_tls_openssl_stop(ErlDrvData drv_data)
 	driver_free(edd);
 }
 
-static int
+static ErlDrvSSizeT
 exmpp_tls_openssl_control(ErlDrvData drv_data, unsigned int command,
-    char *buf, int len, char **rbuf, int rlen)
+    char *buf, ErlDrvSizeT len, char **rbuf, ErlDrvSizeT rlen)
 {
 	struct exmpp_tls_openssl_data *edd;
 	int ret, index, arity, type, type_size, flag;
