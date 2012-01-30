@@ -115,13 +115,16 @@ start_link() ->
 (binary()) -> binary();
 (string()) -> string().
 
-nodeprep(String) ->
-    case control_reuse_arg(?COMMAND_NODEPREP, String) of
-        {error, Reason} ->
-            throw({stringprep, nodeprep, Reason, String});
-        Result ->
-            Result
-    end.
+nodeprep(String) when is_binary(String) ->
+    nodeprep(binary_to_list(String));
+nodeprep(String) when is_list(String) ->
+    string:to_lower(String).
+    %% case control_reuse_arg(?COMMAND_NODEPREP, String) of
+    %%     {error, Reason} ->
+    %%         throw({stringprep, nodeprep, Reason, String});
+    %%     Result ->
+    %%         Result
+    %% end.
 
 %% @spec (String) -> Prepd_String
 %%     String = binary() | string()
