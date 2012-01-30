@@ -121,7 +121,7 @@
 	 }).
 
 %% This timeout should match the connect timeout
--define(TIMEOUT, 5000).
+-define(TIMEOUT, 20000).
 
 %%====================================================================
 %% API
@@ -357,7 +357,7 @@ login(Session, Method) when is_pid(Session), is_atom(Method) ->
 
 %% Send any exmpp formatted packet
 send_packet(Session, Packet) when is_pid(Session) ->
-    case gen_fsm:sync_send_event(Session, {send_packet, Packet}) of
+    case gen_fsm:sync_send_event(Session, {send_packet, Packet}, ?TIMEOUT) of
 	Error when is_tuple(Error) -> erlang:throw(Error);
         Id -> Id
     end.
