@@ -3695,7 +3695,7 @@ attrs_to_iolist(Attrs) ->
     [attr_to_iolist(A) || A <- Attrs].
 
 attr_to_iolist({Name, Value}) ->
-    [$\s, Name, $=, $", escape_using_entities(Value), $"].
+    [$\s, Name, $=, $", Value, $"].
 
 %% @spec (XML_Element) -> XML_Text
 %%     XML_Element = xmlel() | xmlel_old() | list()
