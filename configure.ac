@@ -161,6 +161,15 @@ if test "x${enable_escaping_using_cdata}" = "xyes"; then
 	append_to_EMKOPTS "{d, 'ESCAPE_USING_CDATA_SECTIONS'}"
 fi
 
+dnl Use NIF for cdata escaping.
+AC_ARG_ENABLE([escaping-using-cdata-nif],
+	AC_HELP_STRING([--enable-escaping-using-cdata-nif],
+	    [escape XML text node with CDATA sections using NIF [[default=off]]]),,
+	enable_escaping_using_cdata_nif="no")
+if test "x${enable_escaping_using_cdata_nif}" = "xyes"; then
+	append_to_EMKOPTS "{d, 'ESCAPE_USING_CDATA_NIF'}"
+fi
+
 dnl ------------------------------------------------------------------
 dnl Erlang environment.
 dnl ------------------------------------------------------------------
@@ -348,7 +357,7 @@ case "$target_os" in
 	    [AC_MSG_NOTICE(found 32-bit Erlang)
 	     CBIT=-m32])
 	;;
-    *)        
+    *)
 	echo "Target OS is: '$target_os'"
 	CBIT=""
 	;;

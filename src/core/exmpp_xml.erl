@@ -200,6 +200,7 @@
 	 clear_endtag_tuples/1,
 	 escape_using_entities/1,
 	 escape_using_cdata/1,
+	 escape_using_cdata_nif/1,
 	 internal_escaping_function_name/0
 	]).
 
@@ -244,7 +245,11 @@
 -define(PREFIXED_NAME(P, N), P ++ ":" ++ N).
 
 -ifdef(ESCAPE_USING_CDATA_SECTIONS).
+-ifdef(ESCAPE_USING_CDATA_NIF).
+-define(ESCAPE(CData), escape_using_cdata_nif(CData)).
+-else.
 -define(ESCAPE(CData), escape_using_cdata(CData)).
+-endif. % ESCAPE_USING_CDATA_NIF
 -else.
 -define(ESCAPE(CData), escape_using_entities(CData)).
 -endif.
@@ -3944,6 +3949,15 @@ escape_using_cdata_binary2(CData, Current_Pos, [Pos | End_Token_Pos],
     escape_using_cdata_binary2(CData2, Pos + 1, End_Token_Pos,
 			       [<<"]]>">>, CData1, <<"<![CDATA[">> | Escaped]).
 
+%% @spec (CData) -> Escaped_CData
+%%     CData = string() | binary()
+%%     Escaped_CData = string() | binary()
+%% @doc Escape text using CDATA sections.
+
+-spec(escape_using_cdata_nif/1 :: (binary()) -> binary()).
+escape_using_cdata_nif(CData) ->
+  exmpp_strops:escape(CData).
+
 %% @spec () -> escape_using_entities | escape_using_cdata
 %% @doc Tell what escaping function will be used internally.
 
@@ -3951,8 +3965,13 @@ escape_using_cdata_binary2(CData, Current_Pos, [Pos | End_Token_Pos],
       () -> escape_using_cdata | escape_using_entities).
 
 -ifdef(ESCAPE_USING_CDATA_SECTIONS).
+-ifdef(ESCAPE_USING_CDATA_NIF).
+internal_escaping_function_name() ->
+    escape_using_cdata_nif.
+-else.
 internal_escaping_function_name() ->
     escape_using_cdata.
+-endif.  % ESCAPE_USING_CDATA_NIF
 -else.
 internal_escaping_function_name() ->
     escape_using_entities.

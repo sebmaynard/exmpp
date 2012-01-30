@@ -20,6 +20,6 @@
                         exmpp_server_privacy,exmpp_server_sasl,
                         exmpp_server_session,exmpp_server_tls,exmpp_session,
                         exmpp_socket,exmpp_stanza,exmpp_stream,
-                        exmpp_stringprep,exmpp_sup,exmpp_tls,exmpp_utils,
-                        exmpp_xml,exmpp_xmlstream,stringprep,tls,xml,
-                        xml_stream]}]}.
+                        exmpp_stringprep,exmpp_strops,exmpp_sup,exmpp_tls,
+                        exmpp_utils,exmpp_xml,exmpp_xmlstream,stringprep,tls,
+                        xml,xml_stream]}]}.
