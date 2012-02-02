@@ -21,6 +21,10 @@
 
 #include "exmpp_tls.h"
 
+#ifndef SSL_OP_NO_TICKET
+#define SSL_OP_NO_TICKET 0
+#endif
+
 #if (defined(__MACH__) && defined(__APPLE__))
 #  pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #endif
