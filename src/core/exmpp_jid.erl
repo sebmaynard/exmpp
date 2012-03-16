@@ -130,7 +130,7 @@
 %% Internal type only used in contracts.
 -type(node_arg()   :: binary() | string() | undefined).
 -type(domain_arg() :: binary() | string()).
--type(res_arg()    :: binary() | string() | undefined).
+-type(res_arg()    :: binary() | string() | random | undefined).
 
 %% --------------------------------------------------------------------
 %% JID creation & conversion.
