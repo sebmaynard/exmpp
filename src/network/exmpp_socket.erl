@@ -38,22 +38,22 @@ get_property(_Socket, _Prop) ->
 
 reset_parser(ReceiverPid) when is_pid(ReceiverPid) ->
     ReceiverPid ! reset_parser.
-    
+
 %% Connect to XMPP server
 %% Returns:
 %% Ref or throw error
 %% Ref is a socket
 connect(ClientPid, StreamRef, {Host, Port, Options}) ->
-    LocalIP = proplists:get_value(local_ip, Options, undefined),                     
-    LocalPort= proplists:get_value(local_port, Options, undefined),                  
-    SckType = proplists:get_value(socket_type, Options, gen_tcp),                  
-    IPOptions = case LocalIP of                                                                                          
-                        undefined -> [];                                           
-                        _ ->  case LocalPort of                                                                        
-                                undefined -> [{ip, LocalIP}];                     
-                                _ -> [{ip, LocalIP}, {port, LocalPort()}]         
-                              end                                                                                      
-                end,                                                                                                   
+    LocalIP = proplists:get_value(local_ip, Options, undefined),
+    LocalPort= proplists:get_value(local_port, Options, undefined),
+    SckType = proplists:get_value(socket_type, Options, gen_tcp),
+    IPOptions = case LocalIP of
+                        undefined -> [];
+                        _ ->  case LocalPort of
+                                undefined -> [{ip, LocalIP}];
+                                _ -> [{ip, LocalIP}, {port, LocalPort()}]
+                              end
+                end,
     DefaultOptions = [{packet,0}, binary, {active, false}] ++ IPOptions,
     Opts = [{reuseaddr,true}|DefaultOptions],
     case SckType:connect(Host, Port, Opts, 30000) of
@@ -68,10 +68,10 @@ connect(ClientPid, StreamRef, {Host, Port, Options}) ->
 	    erlang:throw({socket_error, Reason})
     end.
 
-% we do a synchronous shutdown of the receiver process, 
+% we do a synchronous shutdown of the receiver process,
 % because we want to make sure it isn't going be pushing
 % more data to the exmpp_xmlstream after closed. This
-% avoid the -useless- crash reports produced when the 
+% avoid the -useless- crash reports produced when the
 % receiver process read data from socket before received
 % the stop message, but after the xmlstream was closed.
 % See shutdown order in exmpp_session:terminate/3.
@@ -81,7 +81,10 @@ close(_Socket, ReceiverPid) ->
 send(Socket, XMLPacket) when is_tuple(XMLPacket) ->
     Bin = exmpp_xml:document_to_binary(XMLPacket),
  %     io:format("- SENDING:~n~s~n", [Bin]),
-    exmpp_internals:gen_send(Socket, Bin).
+    send(Socket, Bin);
+send(Socket, XMLPacketBin) when is_binary(XMLPacketBin) ->
+    %     io:format("- SENDING:~n~s~n", [XMLPacketBin]),
+    exmpp_internals:gen_send(Socket, XMLPacketBin).
 
 wping(Socket) ->
 	exmpp_internals:gen_send(Socket, <<"\n">>).
@@ -115,14 +118,14 @@ receiver_loop(ClientPid, ESocket, StreamRef) ->
     Socket = get_socket(ESocket),
     exmpp_internals:gen_setopts(ESocket, [{active, once}]),
     receive
-	stop -> 
+	stop ->
             exmpp_internals:gen_close(ESocket),
 	    ok;
-	{compress, From, Ref} -> 
+	{compress, From, Ref} ->
             ZSocket = {exmpp_compress, exmpp_compress:enable_compression(ESocket, [])},
             From ! {ok, Ref, ZSocket},
 	    receiver_loop(ClientPid, ZSocket, StreamRef);
-	{starttls, From, Ref, Mode} -> 
+	{starttls, From, Ref, Mode} ->
             exmpp_internals:gen_setopts(ESocket, [{active, false}]),
             TSocket = {exmpp_tls, exmpp_tls:handshake(Mode, ESocket, undefined, false, [])},
             From ! {ok, Ref, TSocket},
