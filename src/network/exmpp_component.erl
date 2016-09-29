@@ -27,7 +27,7 @@
 %% XMPP Component API:
 -export([start/0, start_link/0, start_debug/0, stop/1]).
 
--export([auth/3, 
+-export([auth/3,
      connect/3,
      handshake/1,
      send_packet/2,
@@ -42,7 +42,7 @@
 	 terminate/3]).
 
 %% States
--export([setup/3, 
+-export([setup/3,
 	 wait_for_stream/2, wait_for_stream/3,
 	 stream_opened/2, stream_opened/3,
 	 stream_error/2, stream_error/3,
@@ -553,5 +553,8 @@ send_packet(#xmlel{name=iq, attrs=Attrs}=IQElement, Module, ConnRef) ->
 send_packet(#xmlel{attrs=Attrs}=Element, Module, ConnRef) ->
     {Attrs2, Id} = check_id(Attrs),
     Module:send(ConnRef, Element#xmlel{attrs=Attrs2}),
-    Id.
+    Id;
+send_packet(keepalive, Module, ConnRef) ->
+    Module:send(ConnRef, <<" ">>),
+    keepalive.
 
