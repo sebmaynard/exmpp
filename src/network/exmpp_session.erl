@@ -107,7 +107,7 @@
           encrypted = false,
           options, %% configuration for stream compression/encryption
 	  domain,
-          host, 
+          host,
 	  client_pid,
 	  connection = exmpp_socket,
 	  connection_ref,
@@ -388,8 +388,8 @@ send_packet(Session, Packet) when is_pid(Session) ->
 %%
 %%      See documentation on exmpp_socket and exmpp_bosh to see the supported properties.
 %%      Returns {error, undefined} if the property is not defined for that kind of connection.
--spec(get_connection_property/2 :: 
-        (pid(), atom()) -> {ok, any()} | {error, any()}).
+-spec get_connection_property
+        (pid(), atom()) -> {ok, any()} | {error, any()}.
 get_connection_property(Session, Prop) ->
     gen_fsm:sync_send_all_state_event(Session, {get_connection_property, Prop}).
 
@@ -404,7 +404,7 @@ set_controlling_process(Session,Client) when is_pid(Session), is_pid(Client) ->
 %% gen_fsm callbacks
 %%====================================================================
 init([Pid]) ->
-    %% TODO: This shouldn't be needed, but see 
+    %% TODO: This shouldn't be needed, but see
     %%       https://support.process-one.net/browse/EXMPP-23
     inets:start(),
     exmpp_stringprep:start(),
@@ -520,10 +520,10 @@ setup({connect_socket, Host, Port, Options}, From, State) ->
 	    {reply, {connect_error,
 		     authentication_or_domain_undefined}, setup, State};
 	{undefined, _Other} ->
-	    connect(exmpp_socket, {Host, Port, Options}, From, 
+	    connect(exmpp_socket, {Host, Port, Options}, From,
 		    State#state{host=Host, options=SessionOptions, whitespace_ping = WhitespacePingT});
 	{Domain, _Any} ->
-    	    connect(exmpp_socket, {Host, Port, Options}, Domain, From, 
+    	    connect(exmpp_socket, {Host, Port, Options}, Domain, From,
 		    State#state{host=Host, options=SessionOptions, whitespace_ping = WhitespacePingT})
     end;
 setup({connect_bosh, URL, Host, Port}, From, State) ->
@@ -605,7 +605,7 @@ wait_for_stream(?stream, State = #state{authenticated = true}) ->
 wait_for_stream(Start = ?stream, State = #state{from_pid = From}) ->
     %% Get StreamID
     StreamId = exmpp_xml:get_attribute_as_list(Start#xmlstreamstart.element, <<"id">>, ""),
-    
+
     case exmpp_xml:get_attribute_as_list(Start#xmlstreamstart.element, <<"version">>, "") of
             "" ->
                 gen_fsm:reply(From, {ok,StreamId}),
@@ -616,13 +616,13 @@ wait_for_stream(Start = ?stream, State = #state{from_pid = From}) ->
     end.
 
 wait_for_stream_features(#xmlstreamelement{element=#xmlel{name='features'} = F}, State) ->
-    #state{connection_ref = ConnRef, 
+    #state{connection_ref = ConnRef,
            connection = Module,
-           from_pid = From, 
-           authenticated = Authenticated, 
-           compressed = Compressed, 
-           encrypted = Encrypted, 
-           options = Options, 
+           from_pid = From,
+           authenticated = Authenticated,
+           compressed = Compressed,
+           encrypted = Encrypted,
+           options = Options,
            stream_id = StreamId} = State,
     Compression = proplists:get_value(compression, Options, enabled),
     StartTLS = proplists:get_value(starttls, Options, enabled),
@@ -634,11 +634,11 @@ wait_for_stream_features(#xmlstreamelement{element=#xmlel{name='features'} = F},
         _ ->
             %% Stream already encrypted, encryption not supported or not enabled
             case exmpp_client_compression:announced_methods(F) of
-                [_|_] when Compressed == false andalso Compression == enabled -> 
+                [_|_] when Compressed == false andalso Compression == enabled ->
                     %% Compression supported. Compress stream using default 'zlib' method.
                     Module:send(ConnRef, exmpp_client_compression:selected_method("zlib")),
                     {next_state, wait_for_compression_result, State};
-                _ -> 
+                _ ->
                     %% Already compressed or compression not supported/enabled
                     case Authenticated of
                         true ->
@@ -656,7 +656,7 @@ wait_for_stream_features(#xmlstreamelement{element=#xmlel{name='features'} = F},
 wait_for_stream_features(X, State) ->
     io:format("Unknown element waiting for stream features ~p \n", [X]),
     {next_state, wait_for_stream_features, State}.
-   
+
 
 wait_for_compression_result(#xmlstreamelement{element=#xmlel{name='compressed'}}, State=#state{domain=Domain}) ->
     #state{connection = Module,
@@ -947,7 +947,7 @@ logged_in({send_packet, Packet}, _From,
 
 %% ---
 %% Receive packets
-logged_in(timeout, 
+logged_in(timeout,
 	  State = #state{connection = Module, connection_ref = ConnRef, whitespace_ping = WPT}) ->
 	  send_whitespace_ping(ConnRef, Module),
 	  {next_state, logged_in, State, WPT};
