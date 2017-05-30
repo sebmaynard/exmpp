@@ -50,7 +50,7 @@
 -record(xmlattr, {
   ns = undefined   :: xmlname() | undefined,
   name             :: attributename(),
-  value            :: binary()
+  value = <<>>     :: binary()
 }).
 -type(xmlattr() :: #xmlattr{}).
 
